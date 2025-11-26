@@ -1,2 +1,2 @@
 #!/bin/bash
-cpp -E "$CFILE" -o "${CFILE%.c}.o"
+cpp -c "$CFILE" -o "${CFILE%.c}.o"
