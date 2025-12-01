@@ -22,18 +22,19 @@ int main(void)
 	if (last_digit < 0)
 	{
 		last_digit = -last_digit;
-		printf("Last digit of %d is %d", n, last_digit);
 	}
+		printf("Last digit of %d is %d", n, last_digit);
+	
 	
 	if (last_digit > 5)
 	{
 		printf(" and is greater than 5\n");
 	}
-	else if (last digit == 0)
+	else if (last_digit == 0)
 	{
 		printf(" and is 0\n");
 	}
-	else ()
+	else
 	{
 		printf(" and is less than 6 and not 0\n");
 	}
