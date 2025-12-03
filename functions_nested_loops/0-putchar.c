@@ -1,10 +1,12 @@
+#include <stdio.h>
 #include "main.h"
 
 /**
- * main - prints _putchar followed by a new line
+ * main - check the print_alphabet function
  *
  * Return: Always 0
  */
+
 int main(void)
 {
     _putchar('_');
@@ -16,5 +18,5 @@ int main(void)
     _putchar('a');
     _putchar('r');
     _putchar('\n');
-    return (0);
+    return 0;
 }
