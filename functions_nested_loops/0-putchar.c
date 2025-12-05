@@ -1,12 +1,11 @@
-#include <stdio.h>
 #include "main.h"
+#include <stdio.h>
 
 /**
- * main - check the print_alphabet function
+ * main - checks the _putchar function
  *
- * Return: Always 0
+ * Return: Always 0.
  */
-
 int main(void)
 {
 	_putchar('_');
@@ -20,5 +19,4 @@ int main(void)
 	_putchar('\n');
 
 	return (0);
-
 }
