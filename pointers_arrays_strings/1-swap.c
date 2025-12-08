@@ -2,7 +2,9 @@
 #include <stdio.h>
 
 /**
- * main - check the code
+ * swap_int - check the code
+ * @a: Parameter1
+ * @b: Parameter2
  *
  * Return: Always 0.
  */
