@@ -9,22 +9,25 @@
  */
 char *_strcat(char *dest, char *src)
 {
-    int i = 0, j = 0;
+	int i;
+	int j;
 
-    /* Find the end of dest */
-    while (dest[i] != '\0')
-        i++;
+	i = 0;
+	while (dest[i] != '\0')
+	{
+		i++;
+	}
 
-    /* Append src to dest */
-    while (src[j] != '\0')
-    {
-        dest[i] = src[j];
-        i++;
-        j++;
-    }
+	j = 0;
+	while (src[j] != '\0')
+	{
+		dest[i] = src[j];
+		i++;
+		j++;
+	}
 
-    /* Add terminating null byte */
-    dest[i] = '\0';
+	dest[i] = '\0';
 
-    return dest;
+	return (dest);
 }
+
