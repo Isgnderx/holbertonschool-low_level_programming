@@ -1,4 +1,5 @@
 #include "main.h"
+#include <stddef.h>
 
 /**
  * _strchr - locates a character in a string
@@ -18,7 +19,6 @@ char *_strchr(char *s, char c)
 			return (s + i);
 	}
 
-	/* Check for the null terminator case if c == '\0' */
 	if (c == '\0')
 		return (s + i);
 
