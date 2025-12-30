@@ -2,7 +2,11 @@
 #include <string.h>
 
 /**
- * get_op_func - selects correct function for operator
+ * get_op_func - selects the correct function for an operator
+ * @s: operator string passed by the user
+ *
+ * Return: pointer to the function corresponding to s
+ *         NULL if operator is invalid
  */
 int (*get_op_func(char *s))(int, int)
 {
