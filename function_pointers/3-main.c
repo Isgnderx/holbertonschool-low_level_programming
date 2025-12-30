@@ -3,7 +3,14 @@
 #include "3-calc.h"
 
 /**
- * main - performs simple operations
+ * main - performs a simple operation given by the user
+ * @argc: number of arguments passed to the program
+ * @argv: array of strings containing the arguments
+ *
+ * Return: 0 on success, or exit with:
+ *         98 if number of arguments is wrong
+ *         99 if operator is invalid
+ *         100 if division/modulo by zero
  */
 int main(int argc, char *argv[])
 {
