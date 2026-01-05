@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdarg.h>
 #include "variadic_functions.h"
 
 /**
@@ -35,22 +34,11 @@ void print_float(va_list args)
  */
 void print_string(va_list args)
 {
-	char *str;
+	char *s;
 
-	str = va_arg(args, char *);
-	printf("%s", str ? str : "(nil)");
+	s = va_arg(args, char *);
+	printf("%s", s ? s : "(nil)");
 }
-
-/**
- * struct printer - printer structure
- * @c: format specifier
- * @f: function pointer
- */
-typedef struct printer
-{
-	char c;
-	void (*f)(va_list);
-} printer_t;
 
 /**
  * print_all - prints anything
