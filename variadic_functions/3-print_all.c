@@ -11,7 +11,7 @@ void print_char(va_list args)
 }
 
 /**
- * print_int - prints an integer
+ * print_int - prints an int
  * @args: va_list
  */
 void print_int(va_list args)
