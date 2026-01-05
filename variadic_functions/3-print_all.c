@@ -12,7 +12,7 @@ void print_char(va_list args)
 }
 
 /**
- * print_int - prints an int
+ * print_int - prints an integer
  * @args: va_list
  */
 void print_int(va_list args)
@@ -35,11 +35,22 @@ void print_float(va_list args)
  */
 void print_string(va_list args)
 {
-	char *s;
+	char *str;
 
-	s = va_arg(args, char *);
-	printf("%s", s ? s : "(nil)");
+	str = va_arg(args, char *);
+	printf("%s", str ? str : "(nil)");
 }
+
+/**
+ * struct printer - printer structure
+ * @c: format specifier
+ * @f: function pointer
+ */
+typedef struct printer
+{
+	char c;
+	void (*f)(va_list);
+} printer_t;
 
 /**
  * print_all - prints anything
@@ -51,15 +62,8 @@ void print_all(const char * const format, ...)
 {
 	va_list args;
 	unsigned int i = 0, j;
-	char *sep = "";
-
-	typedef struct printer
-	{
-		char c;
-		void (*f)(va_list);
-	} printer_t;
-
-	printer_t p[] = {
+	char *separator = "";
+	printer_t printers[] = {
 		{'c', print_char},
 		{'i', print_int},
 		{'f', print_float},
@@ -72,13 +76,13 @@ void print_all(const char * const format, ...)
 	while (format && format[i])
 	{
 		j = 0;
-		while (p[j].c)
+		while (printers[j].c)
 		{
-			if (format[i] == p[j].c)
+			if (format[i] == printers[j].c)
 			{
-				printf("%s", sep);
-				p[j].f(args);
-				sep = ", ";
+				printf("%s", separator);
+				printers[j].f(args);
+				separator = ", ";
 				break;
 			}
 			j++;
