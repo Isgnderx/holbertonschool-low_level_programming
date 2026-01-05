@@ -3,6 +3,45 @@
 #include "variadic_functions.h"
 
 /**
+ * print_char - prints a char
+ * @args: va_list
+ */
+void print_char(va_list args)
+{
+	printf("%c", va_arg(args, int));
+}
+
+/**
+ * print_int - prints an int
+ * @args: va_list
+ */
+void print_int(va_list args)
+{
+	printf("%d", va_arg(args, int));
+}
+
+/**
+ * print_float - prints a float
+ * @args: va_list
+ */
+void print_float(va_list args)
+{
+	printf("%f", va_arg(args, double));
+}
+
+/**
+ * print_string - prints a string
+ * @args: va_list
+ */
+void print_string(va_list args)
+{
+	char *s;
+
+	s = va_arg(args, char *);
+	printf("%s", s ? s : "(nil)");
+}
+
+/**
  * print_all - prints anything
  * @format: list of argument types
  *
@@ -13,22 +52,12 @@ void print_all(const char * const format, ...)
 	va_list args;
 	unsigned int i = 0, j;
 	char *sep = "";
-	char *s;
 
 	typedef struct printer
 	{
 		char c;
 		void (*f)(va_list);
 	} printer_t;
-
-	void print_char(va_list a) { printf("%c", va_arg(a, int)); }
-	void print_int(va_list a) { printf("%d", va_arg(a, int)); }
-	void print_float(va_list a) { printf("%f", va_arg(a, double)); }
-	void print_string(va_list a)
-	{
-		s = va_arg(a, char *);
-		printf("%s", s ? s : "(nil)");
-	}
 
 	printer_t p[] = {
 		{'c', print_char},
