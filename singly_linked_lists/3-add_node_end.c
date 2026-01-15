@@ -1,20 +1,70 @@
 #include "lists.h"
 
 /**
- * list_len - number of elements in a linked list
- * @h: pointer to the first node of the linked list
+ * _strlen - returns the length of a string
+ * @s: pointer to the string
+ *
+ * Return: length of the string
+ */
+
+int _strlen(const char *s)
+{
+	int ln = 0;
+
+	while (s[ln] != '\0')
+	{
+		ln++;
+	}
+
+	return (ln);
+}
+
+/**
+ * add_node_end - adds new node to the end of the linked list
+ * @head: pointer to the first node of the linked list
+ * @str: content of the link to add header
  *
  * Return: the number of nodes
  */
 
-size_t list_len(const list_t *h)
+list_t *add_node_end(list_t **head, const char *str)
 {
-	size_t c = 0;
+	list_t *ptr, *tmp;
 
-	while (h)
+	if (head == NULL || str == NULL)
 	{
-		c += 1;
-		h = h->next;
+		return (NULL);
 	}
-	return (c);
+
+	tmp = malloc(sizeof(*tmp));
+	if (tmp == NULL)
+	{
+		return (NULL);
+	}
+
+	tmp->str = strdup(str);
+	if (tmp->str == NULL)
+	{
+		free(tmp);
+		return (NULL);
+	}
+
+	tmp->len = _strlen(str);
+	tmp->next = NULL;
+
+	if (*head == NULL)
+	{
+		*head = tmp;
+		return (tmp);
+	}
+	ptr = *head;
+
+	while (ptr->next != NULL)
+	{
+		ptr = ptr->next;
+	}
+
+	ptr->next = tmp;
+
+	return (tmp);
 }
