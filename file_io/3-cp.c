@@ -3,78 +3,110 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 
 #define BUFFER_SIZE 1024
 
 /**
- * main - copies the content of a file to another file
- * @argc: number of arguments
- * @argv: array of arguments
+ * close_fd - closes file descriptor with error checking
+ * @fd: file descriptor to close
  *
- * Return: 0 on success, appropriate error code on failure
+ * Return: 0 on success, 1 on failure
  */
-int main(int argc, char *argv[])
+int close_fd(int fd)
 {
-	int fd_from, fd_to, read_bytes, write_bytes;
+	if (close(fd) == -1)
+		return (1);
+	return (0);
+}
+
+/**
+ * handle_error - handles error cases
+ * @code: error code
+ * @msg: error message
+ * @arg: argument for message
+ */
+void handle_error(int code, char *msg, char *arg)
+{
+	dprintf(STDERR_FILENO, msg, arg);
+	exit(code);
+}
+
+/**
+ * open_files - opens source and destination files
+ * @argv: argument vector
+ * @fd_from: pointer to store source fd
+ * @fd_to: pointer to store destination fd
+ */
+void open_files(char *argv[], int *fd_from, int *fd_to)
+{
+	mode_t perm = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
+
+	*fd_from = open(argv[1], O_RDONLY);
+	if (*fd_from == -1)
+		handle_error(98, "Error: Can't read from file %s\n", argv[1]);
+
+	*fd_to = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, perm);
+	if (*fd_to == -1)
+	{
+		close_fd(*fd_from);
+		handle_error(99, "Error: Can't write to %s\n", argv[2]);
+	}
+}
+
+/**
+ * copy_content - copies content from source to destination
+ * @fd_from: source file descriptor
+ * @fd_to: destination file descriptor
+ * @argv: argument vector
+ */
+void copy_content(int fd_from, int fd_to, char *argv[])
+{
 	char buffer[BUFFER_SIZE];
-	mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH;
+	int read_bytes, write_bytes;
 
-	/* Check correct number of arguments */
-	if (argc != 3)
-	{
-		dprintf(STDERR_FILENO, "Usage: cp file_from file_to\n");
-		exit(97);
-	}
-
-	/* Open source file for reading */
-	fd_from = open(argv[1], O_RDONLY);
-	if (fd_from == -1)
-	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
-		exit(98);
-	}
-
-	/* Open destination file for writing, create if doesn't exist */
-	fd_to = open(argv[2], O_CREAT | O_WRONLY | O_TRUNC, permissions);
-	if (fd_to == -1)
-	{
-		dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
-		close(fd_from);
-		exit(99);
-	}
-
-	/* Copy content from source to destination */
 	while ((read_bytes = read(fd_from, buffer, BUFFER_SIZE)) > 0)
 	{
 		write_bytes = write(fd_to, buffer, read_bytes);
 		if (write_bytes == -1 || write_bytes != read_bytes)
 		{
-			dprintf(STDERR_FILENO, "Error: Can't write to %s\n", argv[2]);
-			close(fd_from);
-			close(fd_to);
-			exit(99);
+			close_fd(fd_from);
+			close_fd(fd_to);
+			handle_error(99, "Error: Can't write to %s\n", argv[2]);
 		}
 	}
 
-	/* Check if read failed */
 	if (read_bytes == -1)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't read from file %s\n", argv[1]);
-		close(fd_from);
-		close(fd_to);
-		exit(98);
+		close_fd(fd_from);
+		close_fd(fd_to);
+		handle_error(98, "Error: Can't read from file %s\n", argv[1]);
 	}
+}
 
-	/* Close file descriptors and check for errors */
-	if (close(fd_from) == -1)
+/**
+ * main - copies content of a file to another file
+ * @argc: argument count
+ * @argv: argument vector
+ *
+ * Return: 0 on success, error code on failure
+ */
+int main(int argc, char *argv[])
+{
+	int fd_from, fd_to;
+
+	if (argc != 3)
+		handle_error(97, "Usage: cp file_from file_to\n", NULL);
+
+	open_files(argv, &fd_from, &fd_to);
+	copy_content(fd_from, fd_to, argv);
+
+	if (close_fd(fd_from))
 	{
+		close_fd(fd_to);
 		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd_from);
-		close(fd_to);
 		exit(100);
 	}
-
-	if (close(fd_to) == -1)
+	if (close_fd(fd_to))
 	{
 		dprintf(STDERR_FILENO, "Error: Can't close fd %d\n", fd_to);
 		exit(100);
