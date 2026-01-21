@@ -5,14 +5,55 @@
 #include "main.h"
 
 /**
- * read_textfile - reads a text file and prints it to the POSIX standard output
+ * cleanup_resources - frees buffer and closes file descriptor
+ * @buffer: pointer to allocated memory
+ * @fd: file descriptor to close
+ */
+void cleanup_resources(char *buffer, int fd)
+{
+	if (buffer != NULL)
+		free(buffer);
+	if (fd != -1)
+		close(fd);
+}
+
+/**
+ * read_file - reads from file descriptor into buffer
+ * @fd: file descriptor
+ * @buffer: buffer to store data
+ * @letters: number of letters to read
+ *
+ * Return: number of bytes read, -1 on error
+ */
+ssize_t read_file(int fd, char *buffer, size_t letters)
+{
+	ssize_t n_read;
+
+	n_read = read(fd, buffer, letters);
+	return (n_read);
+}
+
+/**
+ * write_to_stdout - writes buffer to standard output
+ * @buffer: buffer containing data
+ * @n_read: number of bytes to write
+ *
+ * Return: number of bytes written, -1 on error
+ */
+ssize_t write_to_stdout(char *buffer, ssize_t n_read)
+{
+	ssize_t n_written;
+
+	n_written = write(STDOUT_FILENO, buffer, n_read);
+	return (n_written);
+}
+
+/**
+ * read_textfile - reads a text file and prints to POSIX standard output
  * @filename: name of the file to read
  * @letters: number of letters it should read and print
  *
- * Return: actual number of letters it could read and print
- *         if the file can not be opened or read, return 0
- *         if filename is NULL return 0
- *         if write fails or does not write expected amount of bytes, return 0
+ * Return: actual number of letters read and printed, 0 on failure
  */
 ssize_t read_textfile(const char *filename, size_t letters)
 {
@@ -20,45 +61,34 @@ ssize_t read_textfile(const char *filename, size_t letters)
 	ssize_t n_read, n_written;
 	char *buffer;
 
-	/* Check if filename is NULL */
 	if (filename == NULL)
 		return (0);
 
-	/* Allocate memory for buffer */
 	buffer = malloc(sizeof(char) * letters);
 	if (buffer == NULL)
 		return (0);
 
-	/* Open the file */
 	fd = open(filename, O_RDONLY);
 	if (fd == -1)
 	{
-		free(buffer);
+		cleanup_resources(buffer, -1);
 		return (0);
 	}
 
-	/* Read from the file */
-	n_read = read(fd, buffer, letters);
+	n_read = read_file(fd, buffer, letters);
 	if (n_read == -1)
 	{
-		free(buffer);
-		close(fd);
+		cleanup_resources(buffer, fd);
 		return (0);
 	}
 
-	/* Write to standard output */
-	n_written = write(STDOUT_FILENO, buffer, n_read);
+	n_written = write_to_stdout(buffer, n_read);
 	if (n_written == -1 || n_written != n_read)
 	{
-		free(buffer);
-		close(fd);
+		cleanup_resources(buffer, fd);
 		return (0);
 	}
 
-	/* Clean up resources */
-	free(buffer);
-	close(fd);
-
-	/* Return number of letters printed */
+	cleanup_resources(buffer, fd);
 	return (n_written);
 }
