@@ -5,11 +5,55 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+/* ELF header size definitions */
 #define EI_NIDENT 16
+
+/* e_ident indices */
+#define EI_MAG0 0
+#define EI_MAG1 1
+#define EI_MAG2 2
+#define EI_MAG3 3
+#define EI_CLASS 4
+#define EI_DATA 5
+#define EI_VERSION 6
+#define EI_OSABI 7
+#define EI_ABIVERSION 8
+
+/* e_ident[EI_CLASS] values */
+#define ELFCLASSNONE 0
+#define ELFCLASS32 1
+#define ELFCLASS64 2
+
+/* e_ident[EI_DATA] values */
+#define ELFDATANONE 0
+#define ELFDATA2LSB 1
+#define ELFDATA2MSB 2
+
+/* e_ident[EI_VERSION] and e_version values */
+#define EV_NONE 0
+#define EV_CURRENT 1
+
+/* e_ident[EI_OSABI] values */
+#define ELFOSABI_SYSV 0
+#define ELFOSABI_HPUX 1
+#define ELFOSABI_NETBSD 2
+#define ELFOSABI_LINUX 3
+#define ELFOSABI_SOLARIS 6
+#define ELFOSABI_IRIX 8
+#define ELFOSABI_FREEBSD 9
+#define ELFOSABI_TRU64 10
+#define ELFOSABI_ARM 97
+#define ELFOSABI_STANDALONE 255
+
+/* e_type values */
+#define ET_NONE 0
+#define ET_REL 1
+#define ET_EXEC 2
+#define ET_DYN 3
+#define ET_CORE 4
 
 /**
  * ELF header structure (32-bit version)
- * Using the standard ELF definition
  */
 typedef struct
 {
@@ -17,9 +61,9 @@ typedef struct
 	unsigned short	e_type;
 	unsigned short	e_machine;
 	unsigned int	e_version;
-	unsigned long	e_entry;
-	unsigned long	e_phoff;
-	unsigned long	e_shoff;
+	unsigned int	e_entry;
+	unsigned int	e_phoff;
+	unsigned int	e_shoff;
 	unsigned int	e_flags;
 	unsigned short	e_ehsize;
 	unsigned short	e_phentsize;
@@ -240,12 +284,37 @@ void print_entry(unsigned long int e_entry, unsigned char *e_ident)
 }
 
 /**
+ * check_elf - checks if file is ELF
+ * @e_ident: pointer to ELF identification bytes
+ *
+ * Return: 1 if ELF, 0 otherwise
+ */
+int check_elf(unsigned char *e_ident)
+{
+	return (e_ident[0] == 0x7f && e_ident[1] == 'E' &&
+		e_ident[2] == 'L' && e_ident[3] == 'F');
+}
+
+/**
  * print_elf_header - prints the entire ELF header
  * @header: pointer to ELF header structure
  */
 void print_elf_header(void *header)
 {
 	unsigned char *e_ident = ((unsigned char *)header);
+	unsigned int e_type;
+	unsigned long e_entry;
+
+	if (e_ident[EI_CLASS] == ELFCLASS32)
+	{
+		e_type = ((Elf32_Ehdr *)header)->e_type;
+		e_entry = ((Elf32_Ehdr *)header)->e_entry;
+	}
+	else
+	{
+		e_type = ((Elf64_Ehdr *)header)->e_type;
+		e_entry = ((Elf64_Ehdr *)header)->e_entry;
+	}
 
 	printf("ELF Header:\n");
 	print_magic(e_ident);
@@ -254,16 +323,8 @@ void print_elf_header(void *header)
 	print_version(e_ident);
 	print_osabi(e_ident);
 	print_abiversion(e_ident);
-
-	if (e_ident[EI_CLASS] == ELFCLASS32)
-		print_type(((Elf32_Ehdr *)header)->e_type, e_ident);
-	else
-		print_type(((Elf64_Ehdr *)header)->e_type, e_ident);
-
-	if (e_ident[EI_CLASS] == ELFCLASS32)
-		print_entry(((Elf32_Ehdr *)header)->e_entry, e_ident);
-	else
-		print_entry(((Elf64_Ehdr *)header)->e_entry, e_ident);
+	print_type(e_type, e_ident);
+	print_entry(e_entry, e_ident);
 }
 
 /**
@@ -292,7 +353,6 @@ int main(int argc, char *argv[])
 		exit(98);
 	}
 
-	/* Read only the e_ident part first to determine ELF class */
 	header = malloc(sizeof(Elf64_Ehdr));
 	if (header == NULL)
 	{
@@ -310,11 +370,7 @@ int main(int argc, char *argv[])
 		exit(98);
 	}
 
-	/* Check ELF magic */
-	if (((unsigned char *)header)[0] != 0x7f ||
-		((unsigned char *)header)[1] != 'E' ||
-		((unsigned char *)header)[2] != 'L' ||
-		((unsigned char *)header)[3] != 'F')
+	if (!check_elf(header))
 	{
 		free(header);
 		close(fd);
