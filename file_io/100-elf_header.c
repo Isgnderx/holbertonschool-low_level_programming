@@ -31,7 +31,7 @@
 
 /* e_ident[EI_VERSION] and e_version values */
 #define EV_NONE 0
-#define EV_CURRENT 1
+#define EV_CURRENT 1  /* Changed from #define 2 1 to this */
 
 /* e_ident[EI_OSABI] values */
 #define ELFOSABI_SYSV 0
