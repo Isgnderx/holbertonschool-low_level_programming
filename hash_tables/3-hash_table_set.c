@@ -3,10 +3,10 @@
 #include <string.h>
 
 /**
- * hash_table_set - adds or updates an element in the hash table
- * @ht: hash table
- * @key: key (cannot be empty)
- * @value: value (must be duplicated; can be empty string)
+ * hash_table_set - Adds or updates an element in the hash table
+ * @ht: Hash table
+ * @key: Key (cannot be empty)
+ * @value: Value (must be duplicated; can be empty string)
  *
  * Return: 1 on success, 0 on failure
  */
@@ -19,15 +19,11 @@ int hash_table_set(hash_table_t *ht, const char *key, const char *value)
 	if (ht == NULL || ht->array == NULL || ht->size == 0)
 		return (0);
 
-	if (key == NULL || *key == '\0')
-		return (0);
-
-	if (value == NULL)
+	if (key == NULL || *key == '\0' || value == NULL)
 		return (0);
 
 	idx = key_index((const unsigned char *)key, ht->size);
 
-	/* check if key already exists -> update */
 	node = ht->array[idx];
 	while (node != NULL)
 	{
@@ -44,7 +40,6 @@ int hash_table_set(hash_table_t *ht, const char *key, const char *value)
 		node = node->next;
 	}
 
-	/* key not found -> create new node at beginning */
 	node = malloc(sizeof(hash_node_t));
 	if (node == NULL)
 		return (0);
